@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - DO-331-gh-actions
-  schedule:
-    - cron: "0 2 * * 0"
+  # schedule:
+  #   - cron: "0 2 * * 0"
 
 env:
   IMAGE_NAME: ruby
@@ -30,7 +30,7 @@ jobs:
           dockerfile: Dockerfile
           config: hadolint-ci.yaml
 
-      - name: render docker-compose.yml
+      - name: Render docker-compose.yml
         run: RUBY_VERSION=${{ matrix.ruby }} FEDORA_VERSION=35 envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
 
       - name: Build image
