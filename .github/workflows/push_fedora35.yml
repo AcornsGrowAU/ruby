@@ -2,7 +2,7 @@ name: Docker build and push
 on:   
   push:
     branches:
-      - master
+      - DO-331-gh-actions
   schedule:
     - cron: "0 2 * * 0"
 
