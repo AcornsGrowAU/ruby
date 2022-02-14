@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - master
-  schedule:
-    - cron: "0 2 * * 0"
+  # schedule:
+  #   - cron: "0 2 * * 0"
 
 env:
   IMAGE_NAME: ruby
@@ -30,7 +30,7 @@ jobs:
           dockerfile: Dockerfile
           config: hadolint-ci.yaml
 
-      - name: render docker-compose.yml
+      - name: Render docker-compose.yml
         run: RUBY_VERSION=${{ matrix.ruby }} FEDORA_VERSION=35 envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
 
       - name: Build image
@@ -38,31 +38,13 @@ jobs:
 
       - name: Log into registry
         # This is where you will update the PAT to GITHUB_TOKEN
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
 
       - name: Push image
         run: docker-compose -f docker-compose.yml push ruby
 
       - name: Tag build-versioned image
-        run: docker tag ghcr.io/katarti/ruby:${{ matrix.ruby }} ghcr.io/katarti/ruby:${{ matrix.ruby }}-${{ github.run_number }}
+        run: docker tag acornsaustralia/ruby:${{ matrix.ruby }} acornsaustralia/ruby:${{ matrix.ruby }}-${{ github.run_number }}
 
       - name: Push versioned image
-        run: docker push ghcr.io/katarti/ruby:${{ matrix.ruby }}-${{ github.run_number }}
-
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        if: ${{ success() }}
-        env:
-          SLACK_WEBHOOK: ${{ secrets.BUILD_NOTIFY_SLACK }}
-          SLACK_COLOR: green
-          SLACK_MESSAGE: 'Good luck, this time... :rocket:'
-          SLACK_TITLE: Build successful
-      
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2
-        if: ${{ failure() }}
-        env:
-          SLACK_WEBHOOK: ${{ secrets.BUILD_NOTIFY_SLACK }}
-          SLACK_COLOR: red
-          SLACK_MESSAGE: 'Seems whatever you did failed :unrocket:'
-          SLACK_TITLE: Build failed
+        run: docker push acornsaustralia/ruby:${{ matrix.ruby }}-${{ github.run_number }}
