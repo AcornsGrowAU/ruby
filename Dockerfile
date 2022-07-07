@@ -1,9 +1,10 @@
 ARG FEDORA_VERSION
-FROM registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION}
+FROM registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION} as bare
 
 ARG RUBY_VERSION
-RUN microdnf --nodocs upgrade -y && \
-    microdnf install -y fedora-repos-modular.noarch && \
+
+RUN microdnf --nodocs -y upgrade && \
+    microdnf --nodocs -y install fedora-repos-modular && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
     microdnf module enable -y nodejs:14 && \
     microdnf --nodocs install -y \
@@ -23,7 +24,6 @@ RUN microdnf --nodocs upgrade -y && \
     libxml2-devel \
     libxslt-devel \
     make \
-    nano \ 
     nodejs \
     openssl-devel \
     patch \
@@ -41,8 +41,22 @@ RUN microdnf --nodocs upgrade -y && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
+RUN gem install bundler
+
+
+FROM bare as base
+
 ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
-RUN gem install bundler
+
+FROM bare as jemalloc
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
+
+RUN microdnf --nodocs install -y jemalloc
+
+ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2

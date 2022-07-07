@@ -4,7 +4,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: base
       args:
         - RUBY_VERSION=${RUBY_VERSION}
         - FEDORA_VERSION=${FEDORA_VERSION}
-    image: acornsaustralia/ruby:${RUBY_VERSION}
+    image: ruby:${RUBY_VERSION}
+
+  ruby-jemalloc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: jemalloc
+      args:
+        - RUBY_VERSION=${RUBY_VERSION}
+        - FEDORA_VERSION=${FEDORA_VERSION}
+    image: ruby:${RUBY_VERSION}-jemalloc
