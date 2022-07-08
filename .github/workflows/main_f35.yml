@@ -1,0 +1,56 @@
+name: Docker build and push
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 2 * * 0"
+
+env:
+  DOCKER_BUILDKIT: 1
+  DOCKER_IMAGE: "acornsaustralia/ruby"
+  FEDORA_VERSION: 35
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    strategy:
+      matrix:
+        ruby: [
+          '2.7',
+          '3.0'
+        ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: Dockerfile
+          config: hadolint-ci.yaml
+
+      - name: Render docker-compose.yml
+        run: RUBY_VERSION=${{ matrix.ruby }} envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
+
+      - name: Build image
+        run: docker-compose -f docker-compose.yml build ruby
+
+      - name: Tag image
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: |
+          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}
+          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
+
+      - name: Log into registry
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+      - name: Push images
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: |
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
