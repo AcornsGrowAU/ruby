@@ -36,6 +36,7 @@ RUN microdnf --nodocs -y upgrade && \
     shared-mime-info \
     sqlite-devel \
     vim \
+    wget \
     zlib \
     zlib-devel && \
     microdnf --nodocs reinstall -y tzdata && \
