@@ -42,6 +42,9 @@ RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
+RUN gem install bundler
+
+
 FROM bare as base
 
 ONBUILD ARG UID=1000
