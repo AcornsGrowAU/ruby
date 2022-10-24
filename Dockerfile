@@ -31,6 +31,7 @@ RUN microdnf --nodocs -y upgrade && \
     procps-ng \
     redhat-rpm-config \
     ruby \
+    ruby-irb \
     ruby-devel \
     readline-devel \
     shared-mime-info \
@@ -41,7 +42,7 @@ RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
-RUN gem install bundler
+RUN gem install bundler irb
 
 
 FROM bare as base
