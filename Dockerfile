@@ -31,6 +31,7 @@ RUN microdnf --nodocs -y upgrade && \
     procps-ng \
     redhat-rpm-config \
     ruby \
+    ruby-irb \
     ruby-devel \
     readline-devel \
     shared-mime-info \
