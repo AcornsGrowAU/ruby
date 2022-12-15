@@ -42,8 +42,8 @@ jobs:
       - name: Tag image
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
+          docker tag ruby:r8-${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}
+          docker tag ruby:r8-${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
