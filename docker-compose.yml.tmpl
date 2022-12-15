@@ -7,7 +7,7 @@ services:
       target: base
       args:
         - RUBY_VERSION=${RUBY_VERSION}
-        - ROCKY_VERSION=${FEDORA_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
     image: ruby:${RUBY_VERSION}
 
   ruby-jemalloc:
@@ -17,5 +17,5 @@ services:
       target: jemalloc
       args:
         - RUBY_VERSION=${RUBY_VERSION}
-        - ROCKY_VERSION=${FEDORA_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
     image: ruby:${RUBY_VERSION}-jemalloc
