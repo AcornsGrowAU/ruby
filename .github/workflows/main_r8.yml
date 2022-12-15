@@ -9,7 +9,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
-  FEDORA_VERSION: 35
+  ROCKY_VERSION: 8
 
 jobs:
   main:
@@ -52,5 +52,5 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
+          docker push ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}
+          docker push ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}-${{ github.run_number }}
