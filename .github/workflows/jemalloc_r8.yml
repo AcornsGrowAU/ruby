@@ -3,16 +3,17 @@ on:
   push:
     branches:
       - master
+  pull_request:
   schedule:
     - cron: "0 2 * * 0"
 
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
-  FEDORA_VERSION: 36
+  ROCKY_VERSION: 8
 
 jobs:
-  main:
+  jemalloc:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -20,13 +21,14 @@ jobs:
 
     strategy:
       matrix:
-        ruby: [
-          '2.7',
-          '3.0'
-        ]
+        ruby: ["2.7", "3.0"]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - uses: hadolint/hadolint-action@v2.0.0
         with:
@@ -37,13 +39,13 @@ jobs:
         run: RUBY_VERSION=${{ matrix.ruby }} envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
 
       - name: Build image
-        run: docker-compose -f docker-compose.yml build ruby
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build ruby-jemalloc
 
       - name: Tag image
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
+          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc
+          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-${{ github.run_number }}
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
@@ -52,5 +54,5 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-${{ github.run_number }}

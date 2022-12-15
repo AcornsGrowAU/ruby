@@ -1,10 +1,10 @@
-ARG FEDORA_VERSION
-FROM registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION} as bare
+ARG ROCKY_VERSION
+FROM rockylinux:${ROCKY_VERSION}-minimal as bare
 
 ARG RUBY_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
-    microdnf --nodocs -y install fedora-repos-modular && \
+    microdnf --nodocs -y install epel-release && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
     microdnf module enable -y nodejs:14 && \
     microdnf --nodocs install -y \
@@ -20,7 +20,7 @@ RUN microdnf --nodocs -y upgrade && \
     libffi-devel \
     libpq-devel \
     libtool \
-    libyaml-devel \
+    libyaml \
     libxml2-devel \
     libxslt-devel \
     make \
