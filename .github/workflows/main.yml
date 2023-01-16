@@ -51,7 +51,7 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
           docker tag ruby:${{ matrix.ruby }}-${{ matrix.version }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}
-          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
+          docker tag ruby:${{ matrix.ruby }}-${{ matrix.version }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
