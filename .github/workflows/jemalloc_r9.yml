@@ -23,6 +23,12 @@ jobs:
     strategy:
       matrix:
         ruby: ["3.1"]
+        version: [
+          "default",
+          "jemalloc",
+          "nodejs",
+          "nodejs-jemalloc"
+        ]
 
     steps:
       - name: checkout
@@ -40,13 +46,13 @@ jobs:
         run: RUBY_VERSION=${{ matrix.ruby }} envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
 
       - name: Build image
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build ruby-jemalloc
+        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build ${{ matrix.version }}
 
       - name: Tag image
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc
-          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-${{ github.run_number }}
+          docker tag ruby:${{ matrix.ruby }}-${{ matrix.version }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}
+          docker tag ruby:${{ matrix.ruby }}-jemalloc ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
@@ -55,5 +61,5 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-${{ github.run_number }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
