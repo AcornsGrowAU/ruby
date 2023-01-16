@@ -9,6 +9,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
+  DOCKERFILE: "Dockerfile"
   FEDORA_VERSION: 35
 
 jobs:
@@ -21,8 +22,7 @@ jobs:
     strategy:
       matrix:
         ruby: [
-          '2.7',
-          '3.0'
+          '3.1'
         ]
 
     steps:

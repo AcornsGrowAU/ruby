@@ -3,7 +3,7 @@ services:
   ruby:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ${DOCKERFILE}
       target: base
       args:
         - RUBY_VERSION=${RUBY_VERSION}
@@ -13,7 +13,7 @@ services:
   ruby-jemalloc:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ${DOCKERFILE}
       target: jemalloc
       args:
         - RUBY_VERSION=${RUBY_VERSION}
