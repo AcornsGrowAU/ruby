@@ -9,6 +9,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
+  DOCKERFILE: Dockerfile
   ROCKY_VERSION: 8
 
 jobs:
@@ -41,8 +42,8 @@ jobs:
       - name: Tag image
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}
-          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}-${{ github.run_number }}
+          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}
+          docker tag ruby:${{ matrix.ruby }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
@@ -51,5 +52,5 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker push ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}
-          docker push ${DOCKER_IMAGE}:r8-${{ matrix.ruby }}-${{ github.run_number }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ github.run_number }}

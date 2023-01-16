@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
-  DOCKERFILE: "rocky.dockerfile"
+  DOCKERFILE: "nonode.dockerfile"
   ROCKY_VERSION: 9
 
 jobs:
@@ -55,5 +55,5 @@ jobs:
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: |
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-rocky
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-rocky-${{ github.run_number }}
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc
+          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-jemalloc-${{ github.run_number }}

@@ -6,7 +6,6 @@ ARG RUBY_VERSION
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
-    microdnf module enable -y nodejs:14 && \
     microdnf --nodocs install -y \
     autoconf \
     automake \

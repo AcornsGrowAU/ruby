@@ -2,10 +2,11 @@ ARG ROCKY_VERSION
 FROM rockylinux:${ROCKY_VERSION}-minimal as bare
 
 ARG RUBY_VERSION
+ARG NODE_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
+    microdnf --nodocs -y install epel-release && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
-    microdnf --nodocs install -y epel-release && \
     microdnf --nodocs install -y \
     autoconf \
     automake \
@@ -23,11 +24,11 @@ RUN microdnf --nodocs -y upgrade && \
     libxml2-devel \
     libxslt-devel \
     make \
-    nodejs \
     openssl-devel \
     patch \
     postgresql \
     procps-ng \
+    redhat-rpm-config \
     ruby \
     ruby-irb \
     ruby-devel \
