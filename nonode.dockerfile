@@ -2,7 +2,6 @@ ARG ROCKY_VERSION
 FROM rockylinux:${ROCKY_VERSION}-minimal as bare
 
 ARG RUBY_VERSION
-ARG NODE_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
