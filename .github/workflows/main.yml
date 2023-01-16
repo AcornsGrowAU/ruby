@@ -10,7 +10,6 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
-  DOCKERFILE: "nonode.dockerfile"
   ROCKY_VERSION: 9
 
 jobs:
