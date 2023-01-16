@@ -6,7 +6,6 @@ ARG RUBY_VERSION
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
-    microdnf module enable -y nodejs:14 && \
     microdnf --nodocs install -y \
     autoconf \
     automake \
@@ -24,7 +23,6 @@ RUN microdnf --nodocs -y upgrade && \
     libxml2-devel \
     libxslt-devel \
     make \
-    nodejs \
     openssl-devel \
     patch \
     postgresql \
@@ -45,19 +43,41 @@ RUN microdnf --nodocs -y upgrade && \
 RUN gem install bundler
 
 
-FROM bare as base
+FROM bare as default
 
 ONBUILD ARG UID=1000
-ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 
 FROM bare as jemalloc
 
 ONBUILD ARG UID=1000
-ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 RUN microdnf --nodocs install -y jemalloc
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
+
+
+FROM bare as nodejs
+
+RUN microdnf --nodocs install -y nodejs
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
+
+
+FROM bare as nodejs-jemalloc
+
+RUN microdnf --nodocs install -y \
+    nodejs \
+    jemalloc
+
+ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
