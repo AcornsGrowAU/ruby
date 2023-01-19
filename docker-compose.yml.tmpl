@@ -7,6 +7,7 @@ services:
       args:
         - RUBY_VERSION=${RUBY_VERSION}
         - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
     image: ruby:${RUBY_VERSION}-default
 
   jemalloc:
@@ -16,6 +17,7 @@ services:
       args:
         - RUBY_VERSION=${RUBY_VERSION}
         - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
     image: ruby:${RUBY_VERSION}-jemalloc
 
   nodejs:
@@ -25,6 +27,7 @@ services:
       args:
         - RUBY_VERSION=${RUBY_VERSION}
         - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
     image: ruby:${RUBY_VERSION}-nodejs
 
   nodejs-jemalloc:
@@ -34,4 +37,5 @@ services:
       args:
         - RUBY_VERSION=${RUBY_VERSION}
         - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
     image: ruby:${RUBY_VERSION}-nodejs-jemalloc

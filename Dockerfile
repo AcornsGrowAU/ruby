@@ -3,9 +3,11 @@ FROM rockylinux:${ROCKY_VERSION}-minimal as bare
 
 ARG RUBY_VERSION
 
+ARG POSTGRES_VERSION
+
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
-    microdnf module enable -y ruby:${RUBY_VERSION} && \
+    microdnf module enable -y ruby:${RUBY_VERSION} postgresql:${POSTGRES_VERSION} && \
     microdnf --nodocs install -y \
     autoconf \
     automake \
