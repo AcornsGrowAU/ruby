@@ -11,7 +11,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
   ROCKY_VERSION: 9
-  POSTGRES_VERSION: 13
+  POSTGRES_VERSION: 14
 
 jobs:
   jemalloc:
