@@ -7,9 +7,7 @@ ARG POSTGRES_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release wget && \
-    wget -q https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm -O /tmp/pg.rpm && \
-    rpm -i /tmp/pg.rpm && \
-    microdnf module disable -y postgresql && \
+    rpm -iv https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
     microdnf --nodocs install -y \
     autoconf \
