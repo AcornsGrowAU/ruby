@@ -9,7 +9,7 @@ ARG ROCKY_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
-    rpm -iv "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-x86_64/pgdg-redhat-repo-latest.noarch.rpm" && \
+    rpm -iv "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-$(uname -m)/pgdg-redhat-repo-latest.noarch.rpm" && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
     microdnf --nodocs install -y \
     autoconf \
