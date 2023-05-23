@@ -1,0 +1,75 @@
+# TODO Remove after ruby 3 migration
+
+ARG ROCKY_VERSION
+FROM rockylinux:${ROCKY_VERSION}-minimal as bare
+
+ARG RUBY_VERSION
+
+ARG POSTGRES_VERSION
+
+ARG ROCKY_VERSION
+
+RUN microdnf --nodocs -y upgrade && \
+    microdnf --nodocs -y install epel-release && \
+    rpm -iv "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-$(uname -m)/pgdg-redhat-repo-latest.noarch.rpm" && \
+    microdnf module enable -y ruby:${RUBY_VERSION} && \
+    microdnf module disable -y postgresql && \
+    microdnf --nodocs install -y \
+    autoconf \
+    automake \
+    bash \
+    bison \
+    bzip2 \
+    curl-devel \
+    cronie \
+    gcc-c++ \
+    git-core \
+    libffi-devel \
+    libpq-devel \
+    libtool \
+    libyaml \
+    libxml2-devel \
+    libxslt-devel \
+    make \
+    openssl-devel \
+    patch \
+    postgresql${POSTGRES_VERSION} \
+    procps-ng \
+    redhat-rpm-config \
+    ruby \
+    ruby-irb \
+    ruby-devel \
+    readline-devel \
+    shared-mime-info \
+    sqlite-devel \
+    vim \
+    zlib \
+    zlib-devel && \
+    microdnf --nodocs reinstall -y tzdata && \
+    microdnf clean all
+
+RUN gem install bundler
+
+
+FROM bare as nodejs
+
+RUN microdnf module enable -y nodejs && \
+    microdnf --nodocs install -y nodejs
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
+
+
+FROM bare as nodejs-jemalloc
+
+RUN microdnf module enable -y nodejs && \
+    microdnf --nodocs install -y \
+    nodejs \
+    jemalloc
+
+ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
