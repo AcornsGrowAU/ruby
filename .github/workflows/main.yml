@@ -14,7 +14,7 @@ env:
   POSTGRES_VERSION: 14
 
 jobs:
-  jemalloc:
+  ruby:
     runs-on: ubuntu-latest
     permissions:
       packages: write
