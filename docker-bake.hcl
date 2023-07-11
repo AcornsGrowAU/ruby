@@ -3,50 +3,50 @@ variable "GITHUB_RUN_NUMBER" {
 
 group "default" {
   targets = [
-    "r27-jemalloc",
-    "r30-jemalloc",
-    "r27",
-    "r30"
+    "r8-jemalloc",
+    "r9-jemalloc",
+    "r8",
+    "r9"
   ]
 }
 
-target "r27-jemalloc" {
+target "r8-jemalloc" {
   dockerfile = "Dockerfile"
   target     = "jemalloc"
-  tags       = ["acornsaustralia/ruby-jemalloc:2.7-jemalloc", "acornsaustralia/ruby-jemalloc:2.7-jemalloc-${GITHUB_RUN_NUMBER}"]
+  tags       = ["acornsaustralia/ruby:2.7-jemalloc", "acornsaustralia/ruby:2.7-jemalloc-${GITHUB_RUN_NUMBER}"]
   args = {
-    "FEDORA_VERSION" = "35"
+    "ROCKY_VERSION" = "8"
     "RUBY_VERSION"   = "2.7"
   }
   platforms = ["linux/amd64", "linux/arm64"]
 }
 
-target "r30-jemalloc" {
+target "r9-jemalloc" {
   dockerfile = "Dockerfile"
   target     = "jemalloc"
-  tags       = ["acornsaustralia/ruby:3.0-jemalloc", "acornsaustralia/ruby:3.0-jemalloc-${GITHUB_RUN_NUMBER}"]
+  tags       = ["acornsaustralia/ruby:3.1-jemalloc", "acornsaustralia/ruby:3.1-jemalloc-${GITHUB_RUN_NUMBER}"]
   args = {
-    "FEDORA_VERSION" = "35"
-    "RUBY_VERSION"   = "3.0"
+    "ROCKY_VERSION" = "9"
+    "RUBY_VERSION"   = "3.1"
   }
 }
 
-target "r27" {
+target "r8" {
   dockerfile = "Dockerfile"
-  target     = "base"
+  target     = "default"
   tags       = ["acornsaustralia/ruby:2.7", "acornsaustralia/ruby:2.7-${GITHUB_RUN_NUMBER}"]
   args = {
-    "FEDORA_VERSION" = "35"
+    "ROCKY_VERSION" = "8"
     "RUBY_VERSION"   = "2.7"
   }
 }
 
-target "r30" {
+target "r9" {
   dockerfile = "Dockerfile"
-  target     = "base"
-  tags       = ["acornsaustralia/ruby:3.0", "acornsaustralia/ruby:3.0-${GITHUB_RUN_NUMBER}"]
+  target     = "default"
+  tags       = ["acornsaustralia/ruby:3.1", "acornsaustralia/ruby:3.1-${GITHUB_RUN_NUMBER}"]
   args = {
-    "FEDORA_VERSION" = "35"
-    "RUBY_VERSION"   = "3.0"
+    "ROCKY_VERSION" = "9"
+    "RUBY_VERSION"   = "3.1"
   }
 }
