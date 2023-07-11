@@ -1,21 +1,41 @@
 version: '3.7'
 services:
-  ruby:
+  default:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: base
+      target: default
       args:
         - RUBY_VERSION=${RUBY_VERSION}
-        - FEDORA_VERSION=${FEDORA_VERSION}
-    image: ruby:${RUBY_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    image: ruby:${RUBY_VERSION}-default
 
-  ruby-jemalloc:
+  jemalloc:
     build:
       context: .
-      dockerfile: Dockerfile
       target: jemalloc
       args:
         - RUBY_VERSION=${RUBY_VERSION}
-        - FEDORA_VERSION=${FEDORA_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
     image: ruby:${RUBY_VERSION}-jemalloc
+
+  nodejs:
+    build:
+      context: .
+      target: nodejs
+      args:
+        - RUBY_VERSION=${RUBY_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    image: ruby:${RUBY_VERSION}-nodejs
+
+  nodejs-jemalloc:
+    build:
+      context: .
+      target: nodejs-jemalloc
+      args:
+        - RUBY_VERSION=${RUBY_VERSION}
+        - ROCKY_VERSION=${ROCKY_VERSION}
+        - POSTGRES_VERSION=${POSTGRES_VERSION}
+    image: ruby:${RUBY_VERSION}-nodejs-jemalloc

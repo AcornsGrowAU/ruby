@@ -1,12 +1,16 @@
-ARG FEDORA_VERSION
-FROM registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION} as bare
+ARG ROCKY_VERSION
+FROM rockylinux:${ROCKY_VERSION}-minimal as bare
 
 ARG RUBY_VERSION
 
+ARG POSTGRES_VERSION
+
+ARG ROCKY_VERSION
+
 RUN microdnf --nodocs -y upgrade && \
-    microdnf --nodocs -y install fedora-repos-modular && \
+    microdnf --nodocs -y install epel-release && \
+    rpm -iv "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-$(uname -m)/pgdg-redhat-repo-latest.noarch.rpm" && \
     microdnf module enable -y ruby:${RUBY_VERSION} && \
-    microdnf module enable -y nodejs:14 && \
     microdnf --nodocs install -y \
     autoconf \
     automake \
@@ -20,17 +24,17 @@ RUN microdnf --nodocs -y upgrade && \
     libffi-devel \
     libpq-devel \
     libtool \
-    libyaml-devel \
+    libyaml \
     libxml2-devel \
     libxslt-devel \
     make \
-    nodejs \
     openssl-devel \
     patch \
-    postgresql \
+    postgresql${POSTGRES_VERSION} \
     procps-ng \
     redhat-rpm-config \
     ruby \
+    ruby-irb \
     ruby-devel \
     readline-devel \
     shared-mime-info \
@@ -44,19 +48,41 @@ RUN microdnf --nodocs -y upgrade && \
 RUN gem install bundler
 
 
-FROM bare as base
+FROM bare as default
 
 ONBUILD ARG UID=1000
-ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 
 FROM bare as jemalloc
 
 ONBUILD ARG UID=1000
-ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -r -s /bin/bash ruby && \
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 RUN microdnf --nodocs install -y jemalloc
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
+
+
+FROM bare as nodejs
+
+RUN microdnf --nodocs install -y nodejs
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
+
+
+FROM bare as nodejs-jemalloc
+
+RUN microdnf --nodocs install -y \
+    nodejs \
+    jemalloc
+
+ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
+
+ONBUILD ARG UID=1000
+ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
+    chown -R ${UID}:${UID} /ruby
