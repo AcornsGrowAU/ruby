@@ -1,3 +1,5 @@
+# TODO Remove after ruby 3.1 migration
+
 name: Docker build and push
 on:
   push:
@@ -11,7 +13,7 @@ on:
 env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
-  ROCKY_VERSION: 9
+  ROCKY_VERSION: 8
   POSTGRES_VERSION: 15
 
 jobs:
@@ -23,10 +25,8 @@ jobs:
 
     strategy:
       matrix:
-        ruby: ["3.1"]
+        ruby: ["2.7"]
         version: [
-          "default",
-          "jemalloc",
           "nodejs",
           "nodejs-jemalloc"
         ]
