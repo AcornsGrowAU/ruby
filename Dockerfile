@@ -9,8 +9,7 @@ ARG ROCKY_VERSION
 
 RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs -y install epel-release && \
-    rpm -iv "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-$(uname -m)/pgdg-redhat-repo-latest.noarch.rpm" && \
-    microdnf module enable -y ruby:${RUBY_VERSION} && \
+    microdnf module enable -y ruby:${RUBY_VERSION} postgresql:${POSTGRES_VERSION} && \
     microdnf --nodocs install -y \
     autoconf \
     automake \
@@ -30,7 +29,7 @@ RUN microdnf --nodocs -y upgrade && \
     make \
     openssl-devel \
     patch \
-    postgresql${POSTGRES_VERSION} \
+    postgresql \
     procps-ng \
     redhat-rpm-config \
     ruby \

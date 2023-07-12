@@ -12,7 +12,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_IMAGE: "acornsaustralia/ruby"
   ROCKY_VERSION: 9
-  POSTGRES_VERSION: 14
+  POSTGRES_VERSION: 15
 
 jobs:
   jemalloc:
@@ -23,13 +23,18 @@ jobs:
 
     strategy:
       matrix:
-        ruby: ["3.1"]
+        ruby: ["3.1", "2.7"]
         version: [
           "default",
           "jemalloc",
           "nodejs",
           "nodejs-jemalloc"
         ]
+        include:
+          - ruby: "2.7"
+            rocky_version: 8
+          - ruby: "3.1"
+            rocky_version: 9
 
     steps:
       - name: checkout
@@ -44,7 +49,7 @@ jobs:
           config: hadolint-ci.yaml
 
       - name: Render docker-compose.yml
-        run: RUBY_VERSION=${{ matrix.ruby }} envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
+        run: RUBY_VERSION=${{ matrix.ruby }} ROCKY_VERSION=${{ matrix.rocky_version }} envsubst <  docker-compose.yml.tmpl >  docker-compose.yml
 
       - name: Build image
         run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build ${{ matrix.version }}
