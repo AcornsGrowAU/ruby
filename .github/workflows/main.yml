@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
   schedule:
-    - cron: "0 2 * * 0"
+    - cron: 0 2 * * 0
   workflow_dispatch:
 
 jobs:
@@ -13,18 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-
-    strategy:
-      matrix:
-        ruby: ["3.1"]
-        version: ["default", "jemalloc", "nodejs", "nodejs-jemalloc"]
-
-    env:
-      DOCKER_BUILDKIT: 1
-      DOCKER_IMAGE: acornsaustralia/ruby
-      POSTGRES_VERSION: 16
-      ROCKY_VERSION: 9
-      RUBY_VERSION: ${{ matrix.ruby }}
 
     steps:
       - name: Checkout
@@ -34,25 +22,19 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - uses: hadolint/hadolint-action@v3.1.0
+        if: github.event_name == 'pull_request'
         with:
           dockerfile: Dockerfile
           config: hadolint-ci.yaml
 
-      - name: Build image
-        run: docker compose build ${{ matrix.version }}
-
-      - name: Tag image
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: |
-          docker tag ruby:${{ matrix.ruby }}-${{ matrix.version }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}
-          docker tag ruby:${{ matrix.ruby }}-${{ matrix.version }} ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
+      - name: Try to build images
+        if: github.event_name == 'pull_request'
+        run: docker buildx bake --pull --set="*.output=type=image" --set="*.platform=linux/amd64,linux/arm64"
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
 
-      - name: Push images
+      - name: Build and push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: |
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}
-          docker push ${DOCKER_IMAGE}:${{ matrix.ruby }}-${{ matrix.version }}-${{ github.run_number }}
+        run: docker buildx bake --pull --push --set="*.platform=linux/amd64,linux/arm64"
