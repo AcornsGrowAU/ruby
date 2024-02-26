@@ -27,14 +27,13 @@ jobs:
           dockerfile: Dockerfile
           config: hadolint-ci.yaml
 
-      - name: Try to build images
-        if: github.event_name == 'pull_request'
-        run: docker buildx bake --pull --set="*.output=type=image" --set="*.platform=linux/amd64,linux/arm64"
+      - name: Build images
+        run: docker buildx bake
 
       - name: Log into registry
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
 
-      - name: Build and push images
+      - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: docker buildx bake --pull --push --set="*.platform=linux/amd64,linux/arm64"
+        run: docker buildx bake --push

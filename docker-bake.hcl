@@ -18,9 +18,13 @@ target "ruby" {
   }
 
   target = tgt
+  pull   = true
   tags = [
     "acornsaustralia/ruby:3.1-${tgt}",
     "acornsaustralia/ruby:3.1-${tgt}-${GITHUB_RUN_NUMBER}"
+  ]
+  platforms = [
+    "linux/amd64"
   ]
   args = {
     "ROCKY_VERSION"    = "9"
