@@ -1,4 +1,6 @@
-variable "GITHUB_RUN_NUMBER" {}
+variable "GITHUB_RUN_NUMBER" {
+  default = null
+}
 
 group "default" {
   targets = [
@@ -21,7 +23,7 @@ target "ruby" {
   pull   = true
   tags = [
     "acornsaustralia/ruby:3.1-${tgt}",
-    "acornsaustralia/ruby:3.1-${tgt}-${GITHUB_RUN_NUMBER}"
+    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.1-${tgt}-${GITHUB_RUN_NUMBER}" : ""
   ]
   platforms = [
     "linux/amd64"
