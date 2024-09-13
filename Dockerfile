@@ -1,5 +1,5 @@
 ARG ROCKY_VERSION
-FROM rockylinux:${ROCKY_VERSION}-minimal as bare
+FROM rockylinux:${ROCKY_VERSION}-minimal AS bare
 
 ARG RUBY_VERSION
 
@@ -7,12 +7,33 @@ ARG POSTGRES_VERSION
 
 ARG ROCKY_VERSION
 
-RUN microdnf --nodocs -y upgrade && \
+COPY <<-EOF "/etc/yum.repos.d/pgdg${POSTGRES_VERSION}.repo"
+[pgdg-common]
+name=PostgreSQL common RPMs for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-\$releasever-\$basearch
+enabled=1
+gpgcheck=1
+
+[pgdg-rhel9-sysupdates]
+name=PostgreSQL Supplementary ucommon RPMs for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-\$releasever-\$basearch
+enabled=0
+gpgcheck=1
+
+[pgdg-${POSTGRES_VERSION}]
+name=PostgreSQL for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
+baseurl=https://download.postgresql.org/pub/repos/yum/${POSTGRES_VERSION}/redhat/rhel-\$releasever-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL
+EOF
+
+RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL && \
     microdnf --nodocs -y install epel-release && \
     microdnf module enable -y "ruby:${RUBY_VERSION}" && \
-    rpm -i "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${ROCKY_VERSION}-$(arch)/pgdg-redhat-repo-latest.noarch.rpm" && \
     microdnf -y module disable postgresql && \
-    microdnf --nodocs install -y \
+    microdnf --nodocs -y upgrade && \
+    microdnf --enablerepo=crb --nodocs install -y \
     autoconf \
     automake \
     bash \
@@ -23,7 +44,6 @@ RUN microdnf --nodocs -y upgrade && \
     gcc-c++ \
     git-core \
     libffi-devel \
-    libpq-devel \
     libtool \
     libxml2-devel \
     libxslt-devel \
@@ -32,6 +52,7 @@ RUN microdnf --nodocs -y upgrade && \
     openssl-devel \
     patch \
     "postgresql${POSTGRES_VERSION}" \
+    "postgresql${POSTGRES_VERSION}-devel" \
     procps-ng \
     readline-devel \
     redhat-rpm-config \
@@ -46,17 +67,17 @@ RUN microdnf --nodocs -y upgrade && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
-RUN gem install bundler
+RUN gem install -N bundler
 
 
-FROM bare as default
+FROM bare AS default
 
 ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 
-FROM bare as jemalloc
+FROM bare AS jemalloc
 
 ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
@@ -67,7 +88,7 @@ RUN microdnf --nodocs install -y jemalloc
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
 
 
-FROM bare as nodejs
+FROM bare AS nodejs
 
 RUN microdnf --nodocs install -y nodejs
 
@@ -76,7 +97,7 @@ ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
 
-FROM bare as nodejs-jemalloc
+FROM bare AS nodejs-jemalloc
 
 RUN microdnf --nodocs install -y \
     nodejs \

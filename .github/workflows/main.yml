@@ -36,4 +36,4 @@ jobs:
 
       - name: Push images
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: docker buildx bake --push
+        run: docker buildx bake --push --no-cache
