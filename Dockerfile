@@ -61,6 +61,8 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
+ENV PATH=/usr/pgsql-${POSTGRES_VERSION}/bin:$PATH
+
 RUN gem install -N bundler
 
 
