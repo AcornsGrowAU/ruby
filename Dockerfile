@@ -14,12 +14,6 @@ baseurl=https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-\$relea
 enabled=1
 gpgcheck=1
 
-[pgdg-rhel9-sysupdates]
-name=PostgreSQL Supplementary ucommon RPMs for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
-baseurl=https://download.postgresql.org/pub/repos/yum/common/pgdg-rocky9-sysupdates/redhat/rhel-\$releasever-\$basearch
-enabled=0
-gpgcheck=1
-
 [pgdg-${POSTGRES_VERSION}]
 name=PostgreSQL for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
 baseurl=https://download.postgresql.org/pub/repos/yum/${POSTGRES_VERSION}/redhat/rhel-\$releasever-\$basearch
