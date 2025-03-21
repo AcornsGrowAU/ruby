@@ -22,15 +22,15 @@ target "ruby" {
   target = tgt
   pull   = true
   tags = [
-    "acornsaustralia/ruby:3.1-${tgt}",
-    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.1-${tgt}-${GITHUB_RUN_NUMBER}" : ""
+    "acornsaustralia/ruby:3.3-${tgt}",
+    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.3-${tgt}-${GITHUB_RUN_NUMBER}" : ""
   ]
   platforms = [
     "linux/amd64"
   ]
   args = {
     "ROCKY_VERSION"    = "9"
-    "RUBY_VERSION"     = "3.1"
+    "RUBY_VERSION"     = "3.3"
     "POSTGRES_VERSION" = "16"
   }
 }
