@@ -1,0 +1,41 @@
+---
+services:
+  default:
+    build:
+      context: .
+      target: default
+      args:
+        - RUBY_VERSION=3.3
+        - ROCKY_VERSION=9
+        - POSTGRES_VERSION=16
+    image: ruby:3.3
+
+  jemalloc:
+    build:
+      context: .
+      target: jemalloc
+      args:
+        - RUBY_VERSION=3.3
+        - ROCKY_VERSION=9
+        - POSTGRES_VERSION=16
+    image: ruby:3.3-jemalloc
+
+  nodejs:
+    build:
+      context: .
+      target: nodejs
+      args:
+        - RUBY_VERSION=3.3
+        - ROCKY_VERSION=9
+        - POSTGRES_VERSION=16
+    image: ruby:3.3-nodejs
+
+  nodejs-jemalloc:
+    build:
+      context: .
+      target: nodejs-jemalloc
+      args:
+        - RUBY_VERSION=3.3
+        - ROCKY_VERSION=9
+        - POSTGRES_VERSION=16
+    image: ruby:3.3-nodejs-jemalloc

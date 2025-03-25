@@ -79,14 +79,16 @@ ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
-RUN microdnf --nodocs install -y jemalloc
+RUN microdnf --nodocs install -y jemalloc && \
+    microdnf clean all
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
 
 
 FROM bare AS nodejs
 
-RUN microdnf --nodocs install -y nodejs
+RUN microdnf --nodocs install -y nodejs && \
+    microdnf clean all
 
 ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
@@ -97,7 +99,8 @@ FROM bare AS nodejs-jemalloc
 
 RUN microdnf --nodocs install -y \
     nodejs \
-    jemalloc
+    jemalloc && \
+    microdnf clean all
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
 
