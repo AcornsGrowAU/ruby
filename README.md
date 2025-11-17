@@ -24,7 +24,6 @@ docker buildx bake --load --set="*.platform=linux/amd64,linux/arm64"
 
 Note that building images for multiple architectures requires one of the following:
 
-* [Containerd image store](https://docs.docker.com/storage/containerd/) for the `--load` flag to work
-* Pushing directly to a registry, e.g. `docker buildx bake --push --set="*.platform=linux/amd64,linux/arm64"`
-* Using other [output types](https://docs.docker.com/reference/cli/docker/buildx/build/#output) or omitting output flags to keep build cache only
-
+- [Containerd image store](https://docs.docker.com/storage/containerd/) for the `--load` flag to work
+- Pushing directly to a registry, e.g. `docker buildx bake --push --set="*.platform=linux/amd64,linux/arm64"`
+- Using other [output types](https://docs.docker.com/reference/cli/docker/buildx/build/#output) or omitting output flags to keep build cache only

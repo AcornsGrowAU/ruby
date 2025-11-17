@@ -1,0 +1,30 @@
+{
+    "flagWords": [],
+    "words": [
+        "buildx",
+        "hadolint",
+        "acornsaustralia",
+        "jemalloc",
+        "gpgcheck",
+        "pgdg",
+        "releasever",
+        "basearch",
+        "microdnf",
+        "nodocs",
+        "epel",
+        "enablerepo",
+        "devel",
+        "libyaml",
+        "libsass",
+        "fontconfig",
+        "netcat",
+        "pdftk",
+        "procps",
+        "pgsql",
+        "libjemalloc",
+        "gpgkey",
+        "rockylinux"
+    ],
+    "version": "0.2",
+    "language": "en"
+}
