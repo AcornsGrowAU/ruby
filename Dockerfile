@@ -46,13 +46,14 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     libtool \
     libxml2-devel \
     libxslt-devel \
+    libXext-devel \
+    libXrender-devel \
     libyaml\
     libyaml-devel \
     make \
     netcat \
     openssl-devel \
     patch \
-    pdftk \
     "postgresql${POSTGRES_VERSION}" \
     "postgresql${POSTGRES_VERSION}-devel" \
     procps-ng \
@@ -64,8 +65,10 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     shared-mime-info \
     sqlite-devel \
     vim \
+    wget \
     zlib \
-    zlib-devel && \
+    zlib-devel \
+    xz && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
