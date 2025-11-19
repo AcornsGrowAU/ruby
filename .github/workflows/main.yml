@@ -10,13 +10,7 @@ on:
     workflow_dispatch:
 
 permissions:
-    actions: read
-    checks: write
-    contents: write
-    deployments: write
-    packages: write
-    security-events: write
-    statuses: write
+    contents: read
 
 jobs:
     main:
