@@ -26,6 +26,7 @@ gpgkey=file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL
 EOF
 
 RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL && \
+    curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-AARCH64-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-AARCH64-RHEL && \
     microdnf --nodocs -y install epel-release && \
     microdnf -y module disable postgresql && \
     microdnf module enable -y "ruby:${RUBY_VERSION}" && \

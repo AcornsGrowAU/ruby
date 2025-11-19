@@ -26,7 +26,8 @@ target "ruby" {
     GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.3-${tgt}-${GITHUB_RUN_NUMBER}" : ""
   ]
   platforms = [
-    "linux/amd64"
+    "linux/amd64",
+    "linux/arm64"
   ]
   args = {
     "ROCKY_VERSION"    = "9"
