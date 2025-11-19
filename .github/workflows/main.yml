@@ -1,39 +1,43 @@
+---
 name: Docker build and push
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-  schedule:
-    - cron: 0 2 * * 0
-  workflow_dispatch:
+    push:
+        branches:
+            - master
+    pull_request:
+    schedule:
+        - cron: 0 2 * * 0
+    workflow_dispatch:
+
+permissions:
+    contents: read
 
 jobs:
-  main:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    main:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
 
-      - uses: hadolint/hadolint-action@v3.1.0
-        if: github.event_name == 'pull_request'
-        with:
-          dockerfile: Dockerfile
-          config: hadolint-ci.yaml
+            - uses: hadolint/hadolint-action@v3.1.0
+              if: github.event_name == 'pull_request'
+              with:
+                  dockerfile: Dockerfile
+                  config: hadolint-ci.yaml
 
-      - name: Build images
-        run: docker buildx bake
+            - name: Build images
+              run: docker buildx bake --set="*.platform=linux/amd64,linux/arm64"
 
-      - name: Log into registry
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
+            - name: Log into registry
+              if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+              run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
 
-      - name: Push images
-        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: docker buildx bake --push
+            - name: Push images
+              if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+              run: docker buildx bake --set="*.platform=linux/amd64,linux/arm64" --push

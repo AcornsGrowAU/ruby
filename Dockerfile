@@ -1,21 +1,24 @@
-ARG ROCKY_VERSION
+ARG ROCKY_VERSION=9
 FROM rockylinux:${ROCKY_VERSION}-minimal AS bare
 
-ARG RUBY_VERSION
+HEALTHCHECK NONE
 
-ARG POSTGRES_VERSION
+ARG RUBY_VERSION=3.3
+
+ARG POSTGRES_VERSION=17
 
 ARG ROCKY_VERSION
 
+# PGDG repos aren't modular and a pain to use "lightly", so we just deploy the ones we need
 COPY <<-EOF "/etc/yum.repos.d/pgdg${POSTGRES_VERSION}.repo"
 [pgdg-common]
-name=PostgreSQL common RPMs for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
+name=PostgreSQL common RPMs
 baseurl=https://download.postgresql.org/pub/repos/yum/common/redhat/rhel-\$releasever-\$basearch
 enabled=1
 gpgcheck=1
 
 [pgdg-${POSTGRES_VERSION}]
-name=PostgreSQL for RHEL / Rocky / AlmaLinux \$releasever - \$basearch
+name=PostgreSQL RPMs
 baseurl=https://download.postgresql.org/pub/repos/yum/${POSTGRES_VERSION}/redhat/rhel-\$releasever-\$basearch
 enabled=1
 gpgcheck=1
@@ -23,9 +26,10 @@ gpgkey=file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL
 EOF
 
 RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL && \
+    curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-AARCH64-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-AARCH64-RHEL && \
     microdnf --nodocs -y install epel-release && \
-    microdnf module enable -y "ruby:${RUBY_VERSION}" && \
     microdnf -y module disable postgresql && \
+    microdnf module enable -y "ruby:${RUBY_VERSION}" && \
     microdnf --nodocs -y upgrade && \
     microdnf --enablerepo=crb --nodocs install -y \
     autoconf \
@@ -33,16 +37,22 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     bash \
     bison \
     bzip2 \
-    cronie \
-    curl-devel \
+    ca-certificates \
+    fontconfig \
     gcc-c++ \
     git-core \
+    libcurl-devel \
     libffi-devel \
+    libsass-devel \
     libtool \
     libxml2-devel \
     libxslt-devel \
-    libyaml \
+    libXext-devel \
+    libXrender-devel \
+    libyaml\
+    libyaml-devel \
     make \
+    netcat \
     openssl-devel \
     patch \
     "postgresql${POSTGRES_VERSION}" \
@@ -56,8 +66,10 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     shared-mime-info \
     sqlite-devel \
     vim \
+    wget \
     zlib \
-    zlib-devel && \
+    zlib-devel \
+    xz && \
     microdnf --nodocs reinstall -y tzdata && \
     microdnf clean all
 
@@ -79,14 +91,17 @@ ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
     chown -R ${UID}:${UID} /ruby
 
-RUN microdnf --nodocs install -y jemalloc
+RUN microdnf --nodocs install -y jemalloc && \
+    microdnf clean all
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
 
 
 FROM bare AS nodejs
 
-RUN microdnf --nodocs install -y nodejs
+RUN microdnf --nodocs install -y nodejs && \
+    microdnf clean all
+
 
 ONBUILD ARG UID=1000
 ONBUILD RUN useradd -d /ruby -l -m -Uu ${UID} -s /bin/bash ruby && \
@@ -97,7 +112,8 @@ FROM bare AS nodejs-jemalloc
 
 RUN microdnf --nodocs install -y \
     nodejs \
-    jemalloc
+    jemalloc && \
+    microdnf clean all
 
 ENV LD_PRELOAD=/usr/lib64/libjemalloc.so.2
 

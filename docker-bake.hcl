@@ -22,8 +22,8 @@ target "ruby" {
   target = tgt
   pull   = true
   tags = [
-    "acornsaustralia/ruby:3.3-${tgt}",
-    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.3-${tgt}-${GITHUB_RUN_NUMBER}" : ""
+    "acornsaustralia/ruby:3.3-${tgt}-new",
+    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.3-${tgt}-${GITHUB_RUN_NUMBER}-new" : ""
   ]
   platforms = [
     "linux/amd64"
