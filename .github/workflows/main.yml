@@ -32,7 +32,7 @@ jobs:
                   config: hadolint-ci.yaml
 
             - name: Build images
-              run: docker buildx bake
+              run: docker buildx bake --set="*.platform=linux/amd64,linux/arm64"
 
             - name: Log into registry
               if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
@@ -40,4 +40,4 @@ jobs:
 
             - name: Push images
               if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-              run: docker buildx bake --push
+              run: docker buildx bake --set="*.platform=linux/amd64,linux/arm64" --push
