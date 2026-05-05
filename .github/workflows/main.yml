@@ -61,4 +61,4 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login https://index.docker.io/v1/ -u ${{ secrets.DOCKER_USER }} --password-stdin
 
       - name: Push images
-        run: docker buildx bake --set="*.platform=linux/amd64,linux/arm64" --push
+        run: docker buildx bake --push
