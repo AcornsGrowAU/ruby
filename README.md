@@ -10,20 +10,22 @@ Create a builder:
 docker buildx create --use --name builder
 ```
 
-Build for `linux/amd64` and export images to the default image store (`docker images`):
+The bake config builds for `linux/amd64` and `linux/arm64` by default. `--load` only supports a single platform unless the [containerd image store](https://docs.docker.com/storage/containerd/) is enabled.
+
+Load a single platform locally:
 
 ```bash
-docker buildx bake --load
+docker buildx bake --load --set="*.platforms=linux/amd64"
 ```
 
-Build for a different or multiple architectures:
+Push multi-platform to a registry:
 
 ```bash
-docker buildx bake --load --set="*.platform=linux/amd64,linux/arm64"
+docker buildx bake --push
 ```
 
-Note that building images for multiple architectures requires one of the following:
+Or omit the output flag to build into cache only:
 
-- [Containerd image store](https://docs.docker.com/storage/containerd/) for the `--load` flag to work
-- Pushing directly to a registry, e.g. `docker buildx bake --push --set="*.platform=linux/amd64,linux/arm64"`
-- Using other [output types](https://docs.docker.com/reference/cli/docker/buildx/build/#output) or omitting output flags to keep build cache only
+```bash
+docker buildx bake
+```
