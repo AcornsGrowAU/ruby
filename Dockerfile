@@ -65,8 +65,7 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     ruby-irb \
     shared-mime-info \
     sqlite-devel \
-    vim \
-    wget \
+    vim-minimal \
     zlib \
     zlib-devel \
     xz && \
