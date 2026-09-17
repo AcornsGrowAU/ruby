@@ -32,6 +32,6 @@ target "ruby" {
   args = {
     "ROCKY_VERSION"    = "9"
     "RUBY_VERSION"     = "3.3"
-    "POSTGRES_VERSION" = "17"
+    "POSTGRES_VERSION" = "18"
   }
 }
