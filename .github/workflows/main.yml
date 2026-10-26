@@ -1,67 +1,96 @@
 ---
 name: Docker build and push
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-  schedule:
-    - cron: 0 2 * * 0
-  workflow_dispatch:
+    push:
+        branches:
+            - master
+    pull_request:
+    schedule:
+        - cron: 0 2 * * 0
+    workflow_dispatch:
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    ci:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                ruby:
+                    - target: ruby-3-3-default
+                    - target: ruby-4-0-default
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.2
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6.0.2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4.0.0
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v4.0.0
 
-      - uses: hadolint/hadolint-action@v3.3.0
-        with:
-          dockerfile: Dockerfile
-          config: hadolint-ci.yaml
+            - uses: hadolint/hadolint-action@v3.3.0
+              with:
+                  dockerfile: Dockerfile
+                  config: hadolint-ci.yaml
 
-      - name: Build image for scan
-        run: docker buildx build --target default --platform linux/amd64 --load -t acornsaustralia/ruby:scan .
+            - name: Build image for scan
+              run: docker buildx bake ${{ matrix.ruby.target }} --set '*.platforms=linux/amd64' --set '*.tags=acornsaustralia/ruby:scan' --load
 
-      - name: Scan image for vulnerabilities
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: acornsaustralia/ruby:scan
-          format: table
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
+            - name: Scan image for vulnerabilities
+              uses: aquasecurity/trivy-action@v0.36.0
+              with:
+                  image-ref: acornsaustralia/ruby:scan
+                  format: table
+                  exit-code: "1"
+                  ignore-unfixed: true
+                  vuln-type: os,library
+                  severity: CRITICAL,HIGH
 
-  push:
-    needs: ci
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    push:
+        needs: ci
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.2
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6.0.2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4.0.0
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v4.0.0
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4.0.0
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v4.0.0
 
-      - name: Log into registry
-        uses: docker/login-action@v4.1.0
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+            - name: Log into registry
+              uses: docker/login-action@v4.1.0
+              with:
+                  username: ${{ secrets.DOCKER_USER }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push images
-        run: docker buildx bake --push --provenance=mode=max --sbom=true
+            - name: Push images
+              run: docker buildx bake --push --provenance=mode=max --sbom=true
+
+    notify:
+        needs:
+            - ci
+            - push
+        if: failure() && github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+
+        steps:
+            - name: Open or update failure issue
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  TITLE: Image build failed on master
+                  BODY: ${{ github.event_name }} run failed, see ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              run: |
+                  number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title $TITLE" --json number --jq '.[0].number')
+                  if [ -n "$number" ]; then
+                    gh issue comment "$number" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+                  else
+                    gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY" --assignee gothrek22
+                  fi

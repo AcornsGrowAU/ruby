@@ -1,9 +1,9 @@
-ARG ROCKY_VERSION=9
-FROM rockylinux:${ROCKY_VERSION}-minimal AS bare
+ARG ROCKY_VERSION=10
+FROM rockylinux/rockylinux:${ROCKY_VERSION}-minimal AS bare
 
 HEALTHCHECK NONE
 
-ARG RUBY_VERSION=3.3
+ARG RUBY_VERSION
 
 ARG POSTGRES_VERSION=18
 
@@ -25,11 +25,10 @@ gpgcheck=1
 gpgkey=file:///etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL
 EOF
 
-RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL && \
+RUN if [ "${RUBY_VERSION}" = 3.3 ]; then ruby_pkg=ruby; else ruby_pkg="ruby${RUBY_VERSION}"; fi && \
+    curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL && \
     curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-AARCH64-RHEL https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-AARCH64-RHEL && \
     microdnf --nodocs -y install epel-release && \
-    microdnf -y module disable postgresql && \
-    microdnf module enable -y "ruby:${RUBY_VERSION}" && \
     microdnf --nodocs -y upgrade && \
     microdnf --enablerepo=crb --nodocs install -y \
     autoconf \
@@ -49,7 +48,7 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     libxslt-devel \
     libXext-devel \
     libXrender-devel \
-    libyaml\
+    libyaml \
     libyaml-devel \
     make \
     netcat \
@@ -60,9 +59,8 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
     procps-ng \
     readline-devel \
     redhat-rpm-config \
-    ruby \
-    ruby-devel \
-    ruby-irb \
+    "${ruby_pkg}" \
+    "${ruby_pkg}-devel" \
     shared-mime-info \
     sqlite-devel \
     vim-minimal \
@@ -74,8 +72,9 @@ RUN curl -o /etc/pki/rpm-gpg/PGDG-RPM-GPG-KEY-RHEL https://download.postgresql.o
 
 ENV PATH=/usr/pgsql-${POSTGRES_VERSION}/bin:$PATH
 
-RUN gem install -N bundler
-
+RUN for f in /usr/bin/*"${RUBY_VERSION}"; do [ -e "$f" ] && ln -s "$f" "${f%"${RUBY_VERSION}"}"; done; \
+    ruby -e 'abort "expected ruby #{ARGV[0]}, got #{RUBY_VERSION}" unless RUBY_VERSION.start_with?("#{ARGV[0]}.")' "${RUBY_VERSION}" && \
+    gem install -N bundler
 
 FROM bare AS default
 

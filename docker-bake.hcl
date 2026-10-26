@@ -9,8 +9,12 @@ group "default" {
 }
 
 target "ruby" {
-  name = "ruby-${tgt}"
+  name = "ruby-${replace(rb, ".", "-")}-${tgt}"
   matrix = {
+    rb = [
+        "3.3",
+        "4.0"
+    ]
     tgt = [
       "default",
       "jemalloc",
@@ -22,16 +26,16 @@ target "ruby" {
   target = tgt
   pull   = true
   tags = [
-    "acornsaustralia/ruby:3.3-${tgt}",
-    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:3.3-${tgt}-${GITHUB_RUN_NUMBER}" : ""
+    "acornsaustralia/ruby:${rb}-${tgt}",
+    GITHUB_RUN_NUMBER != null ? "acornsaustralia/ruby:${rb}-${tgt}-${GITHUB_RUN_NUMBER}" : ""
   ]
   platforms = [
     "linux/amd64",
     "linux/arm64"
   ]
   args = {
-    "ROCKY_VERSION"    = "9"
-    "RUBY_VERSION"     = "3.3"
+    "ROCKY_VERSION"    = "10"
+    "RUBY_VERSION"     = rb
     "POSTGRES_VERSION" = "18"
   }
 }
